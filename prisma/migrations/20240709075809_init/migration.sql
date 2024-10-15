@@ -6,7 +6,7 @@ CREATE TABLE "Product" (
     "imagePath" TEXT NOT NULL,
     "filePath" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "isAvalaileForPurchase" BOOLEAN NOT NULL DEFAULT true,
+    "isAvailableForPurchase" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
