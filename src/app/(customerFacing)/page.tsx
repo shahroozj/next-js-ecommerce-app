@@ -3,9 +3,12 @@ import db from "../db/db";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
+import { Suspense } from "react";
+import { wait } from "@/lib/utils";
 
 function getMostPopularProducts(){
+    //await wait(1000)
     return db.product.findMany({
         where : { isAvailableForPurchase : true }, 
         orderBy : { orders : {_count : "desc"}},
@@ -14,6 +17,7 @@ function getMostPopularProducts(){
 }
 
 function getNewestProducts(){
+    //await wait(2000)
     return db.product.findMany({
         where : { isAvailableForPurchase : true }, 
         orderBy : { createdAt : "desc"},
@@ -33,7 +37,7 @@ type ProductGridSectionProps = {
     productsFetcher: () => Promise<Product[]>
 }
 
-async function ProductGridSection({productsFetcher, title} : ProductGridSectionProps){
+function ProductGridSection({productsFetcher, title} : ProductGridSectionProps){
     return (<div className="space-y-4">
         <div className="flex gap-4">
             <h2 className="text-3xl font-bold">{title}</h2>
@@ -45,10 +49,23 @@ async function ProductGridSection({productsFetcher, title} : ProductGridSectionP
             </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(await productsFetcher()).map(product =>(
-                <ProductCard key={product.id} {...product}/>
-            ))}
+            <Suspense fallback={
+                <>
+                    <ProductCardSkeleton/>
+                    <ProductCardSkeleton/>
+                    <ProductCardSkeleton/>
+                </>
+            }>
+                <ProductSuspense productsFetcher = {productsFetcher} ></ProductSuspense>
+            </Suspense>
         </div>
     </div>
     )
 }
+
+async function ProductSuspense({productsFetcher} : { productsFetcher: () => Promise<Product[]>} ) {
+    return (await productsFetcher()).map(product => (
+        <ProductCard key={product.id} {...product} />
+    ));
+}
+
